@@ -1,0 +1,52 @@
+---
+
+jobs:
+- name: ship-it
+  serial: true
+  public: true
+  plan:
+  - get: docker-alpine-m2
+    trigger: true
+  - put: version
+    params: {bump: minor}
+  - put: release-image
+    params:
+      build: docker-alpine-m2
+      tag: version/number
+  - put: docker-alpine-m2 
+    params: 
+      only_tag: true
+      repository: docker-alpine-m2
+      tag: version/number
+
+resources:
+    
+- name: docker-alpine-m2
+  type: git
+  source:
+    uri: git@github.com:sergiubodiu/docker-alpine-m2.git
+    branch: master
+    private_key: {{private-key-github-concourse}}
+
+- name: release-image
+  type: docker-image
+  source:
+    repository: sbodiu/m2
+    email: {{docker-email}}
+    username: {{docker-username}}
+    password: {{docker-password}}
+
+- name: version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:sergiubodiu/version-concourse.git
+    branch: master
+    file: docker-alpine-m2/version
+    private_key: {{private-key-github-concourse}}
+    git_config:
+    - name: user.email
+      value: sbodiu@pivotal.io
+    - name: user.name
+      value: Sergiu
+
