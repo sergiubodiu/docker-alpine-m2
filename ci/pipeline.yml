@@ -11,6 +11,7 @@ jobs:
     params: {bump: minor}
   - put: release-image
     params:
+      tag_as_latest: true
       build: docker-alpine-m2
       tag: version/number
   - put: docker-alpine-m2 
@@ -27,6 +28,7 @@ resources:
     uri: git@github.com:sergiubodiu/docker-alpine-m2.git
     branch: master
     private_key: {{private-key-github-concourse}}
+    paths: Dockerfile
 
 - name: release-image
   type: docker-image
